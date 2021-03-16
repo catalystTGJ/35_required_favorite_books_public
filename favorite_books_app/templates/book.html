@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Book Detail</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?{% now 'U' %}">
+</head>
+<body>
+    
+    <p value="------------- section to show the header area with log off and refresh buttons -------------"></p>
+
+    <div class="container py-3 justify-content-center">
+        <div class="row">
+            <div class="col-7 my-auto">
+                <H4>Welcome, {{ user.first_name }}!</H4>
+            </div>
+
+            <div class="col-5 my-auto text-right">
+                <form action="/user/logout" method="post">
+                    {% csrf_token %}
+                    <a class="btn btn-info btn-sm" href="/books/my_books">Go to My Books</a> |
+                    <a class="btn btn-primary btn-sm" href="/books">Go to All Books</a> |
+                    <button class="btn btn-success btn-sm">Log off</button>
+                </form>
+            </div>
+        </div>
+
+        <hr class="solid">
+
+        <p value="------------- section to show flash messages, if there are any errors -------------"></p>
+
+        {% if messages %}
+            <div class="container text-danger">
+                <br>
+                <H4>To post/delete a message or comment, the following errors must be corrected:</H4>
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>   
+                    {% endfor %}
+                </ul>
+                <br>
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-6">
+                {% if user.id == book.owner.id %}
+
+                    <form action="/books/update/{{book.id}}/" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" id="book_id" name="book_id" value="{{ book.id }}">
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" name="title" value="{{book.title}}" class="form-control">
+                        </div>
+
+                        <h4>Added by: {{ book.owner.full_name }}</h4>
+                        <h4>Added on: {{ book.created_at }}</h4>
+                        <h4>Added on: {{ book.updated_at }}</h4>
+
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input type="text" id="description" name="description" value="{{book.description}}" class="form-control">
+                        </div>
+                        <button class="btn btn-success">Update Book</button>
+                    </form>
+
+                    <p value="------------- section for showing delete message button only when appropriate -------------"></p>
+
+                    <form action="/books/delete/{{book.id}}/" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" id="book_id" name="book_id" value="{{ book.id }}">
+                        <input type="hidden" id="user_id" name="user_id" value="{{ user.id }}">
+                        <button class="btn btn-danger">Delete Book</button>
+                    </form>
+
+                {% else %}
+
+                    <h2>Added on: {{ book.title }}</h2>
+                    <h4>Added by: {{ book.owner.full_name }}</h4>
+                    <h4>Added on: {{ book.created_at }}</h4>
+                    <h4>Added on: {{ book.updated_at }}</h4>
+                    <h3>Added on: {{ book.description }}</h3>
+
+                {% endif %}
+
+                {% if user not in book.users_who_like.all %}
+                    <br>
+                    <form action="/books/favorite/{{book.id}}/" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" id="return_to" name="return_to" value="/books/detail/{{book.id}}">
+                        <button class="btn btn-info">favorite</button>
+                    </form>
+                {% endif %}
+
+            </div>
+
+            <div class="col-6">
+                <H1>Users Who like This Book</H1>
+                <div class="container py-3 justify-content-center">
+                    {% if book.users_who_like.all.count > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-fixed">
+                                <tbody>
+                                    {% for liker in book.users_who_like.all %}
+                                        <tr>
+                                            <td class="col-12">
+                                                <div class="row">
+                                                    <div class="col-7 my-auto">
+                                                        <h4>{{ liker.full_name }}<h4>
+                                                    </div>
+                                                    {% if user in book.users_who_like.all %}
+                                                        <form action="/books/unfavorite/{{book.id}}/" method="post">
+                                                            {% csrf_token %}
+                                                            <input type="hidden" id="return_to" name="return_to" value="/books/detail/{{book.id}}">
+                                                            <button class="btn btn-warning">unfavorite</button>
+                                                        </form>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <h4>No one likes this book yet!</h4>
+                            </div>
+                        </div>
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

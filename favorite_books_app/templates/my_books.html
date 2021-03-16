@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Favorite Books</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?{% now 'U' %}">
+</head>
+<body>
+    <p value="------------- section to show the header area with log off and refresh buttons -------------"></p>
+
+    <div class="container py-3 justify-content-center">
+        <div class="row">
+            <div class="col-7 my-auto">
+                <H4>Welcome, {{ user.first_name }}!</H4>
+            </div>
+
+            <div class="col-5 my-auto text-right">
+                
+                <form action="/user/logout" method="post">
+                    {% csrf_token %}
+                    <a class="btn btn-info btn-sm" href="/books/my_books">Refresh My Books</a> |
+                    <a class="btn btn-primary btn-sm" href="/books">Go to All Books</a> |
+                    <button class="btn btn-success btn-sm">Log off</button>
+                </form>
+
+            </div>
+        </div>
+
+        <hr class="solid">
+
+        <p value="------------- section to show flash messages, if there are any errors -------------"></p>
+
+        {% if messages %}
+            <div class="container text-danger">
+                <br>
+                <H4>To post/delete a message or comment, the following errors must be corrected:</H4>
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>   
+                    {% endfor %}
+                </ul>
+                <br>
+            </div>
+        {% endif %}
+
+        <p value="------------- section to show books in a scrollable table, but only if they exist -------------"></p>
+
+        <div class="col-6">
+            <H1>My Favorite Books</H1>
+            <div class="container py-3 justify-content-center">
+                {% if books %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-fixed">
+                            <tbody>
+                                {% for book in books %}
+                                    <tr>
+                                        <td class="col-12">
+                                            <div class="row">
+                                                <div class="col-7 my-auto">
+                                                    <a href="/books/detail/{{ book.id }}">{{ book.title }}</a>
+                                                    <p>(added by {{ book.owner.full_name }})<p>
+                                                </div>
+                                                <div class="col-5 my-auto">
+                                                    {% if user in book.users_who_like.all %}
+                                                        <form action="/books/unfavorite/{{ book.id }}/" method="post">
+                                                            {% csrf_token %}
+                                                            <input type="hidden" id="return_to" name="return_to" value="/books/my_books/">
+                                                            <button class="btn btn-warning btn-sm">unfavorite</button>
+                                                        </form>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h4>You have no favorite books yet!</h4>
+                        </div>
+                    </div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>  
+</body>
+</html>

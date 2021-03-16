@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title>Welcome</title>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'css/style.css' %}?{% now 'U' %}">
+    </head>
+    <body>
+        <div class="container py-3 justify-content-center">
+            <H1>Success!</H1>
+
+            <H1>Welcome, {{ user.full_name }}!</H1>
+
+            <H3>Successfully registered (or logged in)!</H3>
+
+            <br>
+            <br>
+            <div class="form-group">
+                <form action="/user/logout" method="post">
+                    {% csrf_token %}
+                    <a class="btn btn-info btn-sm" href="/books/my_books">Go to My Books</a> |
+                    <a class="btn btn-primary btn-sm" href="/books">Go to All Books</a> |
+                    <button class="btn btn-success btn-sm">Log off</button>
+                </form>
+            </div>
+        </div>
+
+    </body>
+</html>
